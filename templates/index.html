@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Prediction & Route Optimizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; }
+        .hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 50px 0; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .card-header { background-color: #fff; border-bottom: none; font-weight: bold; font-size: 1.25rem; color: #764ba2; }
+        
+        /* Traffic Level Colors */
+        .traffic-Low { color: #28a745; font-weight: bold; } /* Green */
+        .traffic-Medium { color: #ffc107; font-weight: bold; } /* Yellow */
+        .traffic-High { color: #dc3545; font-weight: bold; } /* Red */
+        
+        /* Route Visualization Styles */
+        .route-visual { list-style: none; padding: 0; display: flex; align-items: center; justify-content: center; margin-top: 20px;}
+        .route-step { text-align: center; position: relative; flex-grow: 1; }
+        .step-icon { width: 40px; height: 40px; border-radius: 50%; background-color: #764ba2; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold; border: 4px solid #fff; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
+        .step-text { font-size: 0.9rem; font-weight: 600; color: #333; }
+        .route-step:not(:last-child)::after { content: ''; position: absolute; top: 20px; right: -50%; width: 100%; height: 4px; background-color: #e0e0e0; z-index: -1; }
+        .route-step.completed::after { background-color: #764ba2; }
+    </style>
+</head>
+<body>
+
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Traffic Prediction & Route Optimizer</h1>
+        <p class="lead">Predicting road conditions and providing optimal routes using Machine Learning.</p>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-5">
+            <div class="card h-100">
+                <div class="card-header">Traffic Parameter Input</div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="time" class="form-label">Current Time (0-24, e.g., 0.1 increments):</label>
+                            <input type="number" step="0.1" class="form-control" name="time" id="time" value="{{ request.form.time or '' }}" placeholder="e.g., 8.5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="weather" class="form-label">Weather Condition:</label>
+                            <select class="form-select" name="weather" id="weather" required>
+                                <option value="" disabled {{ 'selected' if not request.form.weather }}>-- Select Weather --</option>
+                                <option value="0" {{ 'selected' if request.form.weather == '0' }}>☀️ Sunny</option>
+                                <option value="1" {{ 'selected' if request.form.weather == '1' }}>🌧️ Rainy</option>
+                                <option value="2" {{ 'selected' if request.form.weather == '2' }}>☁️ Cloudy</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="vehicle_count" class="form-label">Real-time Vehicle Density (per km):</label>
+                            <input type="number" class="form-control" name="vehicle_count" id="vehicle_count" value="{{ request.form.vehicle_count or '' }}" placeholder="e.g., 120" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">🚀 Optimize Route</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="card h-100">
+                <div class="card-header">Analysis Results</div>
+                <div class="card-body">
+                    {% if prediction %}
+                        <div class="alert alert-info text-center" role="alert">
+                            <h4>Predicted Traffic Level</h4>
+                            <span class="display-6 traffic-{{ prediction }}">{{ prediction }}</span>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="text-center mb-4">Recommended Optimized Route</h5>
+                        
+                        <ul class="route-visual">
+                            {% for node in route %}
+                                <li class="route-step {% if not loop.last %}completed{% endif %}">
+                                    <div class="step-icon">{{ loop.index }}</div>
+                                    <div class="step-text">{{ node }}</div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+                        <div class="text-center mt-4">
+                            <p class="text-muted small">Note: The route is calculated dynamically by adjusting weights based on the predicted <strong>{{ prediction }}</strong> traffic level.</p>
+                        </div>
+                        
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <img src="https://via.placeholder.com/150x100?text=Waiting+for+Input" alt="Waiting" class="mb-3">
+                            <p>Enter parameters on the left and click the button to see the results.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="text-center py-4 text-muted">
+    <div class="container">
+        &copy; 2023 Traffic System Project. Powered by Flask & Machine Learning.
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
