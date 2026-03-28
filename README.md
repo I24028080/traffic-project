@@ -24,9 +24,9 @@ The system operates through a seamless pipeline:
 ---
 
 ## 💻 Installation & Setup
-1.  **Clone the Repository**:
-    git clone https://github.com/I24028080/traffic-project.git
-    cd traffic_project
+1. **Clone the Repository**:
+   git clone https://github.com/I24028080/traffic-project.git
+   cd traffic_project
 
 2.  **Install Dependencies**:
     ```bash
